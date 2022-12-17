@@ -1,11 +1,20 @@
 package service
 
-import "github.com/kazakovdmitriy/todo-app-go/pkg/repository"
+import (
+	todo_app "github.com/kazakovdmitriy/todo-app-go"
+	"github.com/kazakovdmitriy/todo-app-go/pkg/repository"
+)
 
 type Autorization interface {
+	CreateUser(user todo_app.User) (int, error)
+	GenerateToken(username, password string) (string, error)
+	ParseToken(token string) (int, error)
 }
 
 type TodoList interface {
+	Create(userId int, list todo_app.TodoList) (int, error)
+	GetAll(userId int) ([]todo_app.TodoList, error)
+	GetById(userId, listId int) (todo_app.TodoList, error)
 }
 
 type TodoItem interface {
@@ -18,5 +27,8 @@ type Service struct {
 }
 
 func NewService(repos *repository.Repository) *Service {
-	return &Service{}
+	return &Service{
+		Autorization: NewAuthService(repos.Autorization),
+		TodoList:     NewTodoListService(repos.TodoList),
+	}
 }
